@@ -37,18 +37,8 @@ const createBanner = async (req, res) => {
 
 const getBanner = async (req, res) => {
     try {
-        const page = parseInt(req.query.page) || 1;
-        // console.log(page ,"page")
-        const limit = parseInt(req.query.limit) || 1;
-        // console.log(limit ,"limit")
-        const skip = (page - 1) * limit;
-        // console.log(skip ,"Skip")
-        const totalCount = await banner.countDocuments();
-        // console.log(totalCount ,"total page")
-        const data = await banner.find().skip(skip).limit(limit);
-        // console.log(data, "Data")
-
-        if (!data || data.length === 0) {
+        const data = await banner.find()
+        if (!data) {
             return res.status(404).json({
                 success: false,
                 mess: "No Banner Found"
@@ -57,10 +47,7 @@ const getBanner = async (req, res) => {
             res.status(200).json({
                 success: true,
                 mess: "Banner Found Successfully",
-                data: data,
-                total: totalCount,
-                page: page,
-                pages: Math.ceil(totalCount / limit)
+                data: data
             });
         }
     } catch (error) {
