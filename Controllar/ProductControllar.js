@@ -1,9 +1,10 @@
 
-// const newsletter = require("../Model/Newsletter");
+const newsletter = require("../Model/Newsletter");
 const Product = require("../Model/ProductModel");
 const { uploadimage, deleteImage } = require("../Utils/Cloudnary");
 const fs = require("fs");
-const { transporter } = require("../Utils/Mailsender");
+const transporter = require("../Utils/Mailsender");
+
 
 
 const createRecord = async (req, res) => {
@@ -59,30 +60,26 @@ const createRecord = async (req, res) => {
             }
         }
         await newProduct.save();
-
-        // const allmails = await newsletter.find(); 
-        // const mailSend = {
-        //     from: process.env.MAIL_SENDER,
-        //     to: "bbirthday314@gmail.com",
-        //     subject: `New Product Alert: ${productName}`,
-        //     text: `
-        //         Dear Subscriber,
-    
-        //         We are excited to announce the launch of our new product: ${productName}.
-    
-        //         Check it out now and enjoy our special offers!
-    
-        //         Best regards,
-        //         The HAPS Team
-        //     `
-        // }
-
-        // transporter.sendMail(mailSend ,((error)=>{
-        //     if (error) {
-        //         console.log(error)
-        //         return res.status(401).json({ success: false, message: "Invalid Email Address" })
-        //     }
-        // }))
+        const allMails = await newsletter.find().select('email -_id');
+        const mailSendPromises = allMails.map(({ email }) => {
+            const mailOptions = {
+                from: process.env.MAIL_SENDER,
+                to: email,
+                subject: `New Product Alert: ${productName}`,
+                html: `
+            <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+                <h2 style="color: #007BFF;">Dear Subscriber,</h2>
+                <p>We are excited to announce the launch of our new product: <strong>${productName}</strong>.</p>
+                <p>Check it out now and enjoy our special offers!</p>
+                <a href="https://yourwebsite.com/product-page" style="display: inline-block; padding: 10px 20px; background-color: #28a745; color: #fff; text-decoration: none; border-radius: 5px; margin: 10px 0;">View Product</a>
+                <p>Best regards,</p>
+                <p>The HAPS Team</p>
+            </div>
+        `
+            };
+            return transporter.sendMail(mailOptions);
+        });
+        await Promise.all(mailSendPromises);
         res.status(200).json({
             success: true,
             message: "Product created successfully",

@@ -10,6 +10,7 @@ const cartRouter = require("./Route/CartRouter")
 const checkoutrouter = require("./Route/CheckoutRouter")
 const userRouter = require("./Route/UserRouter")
 const NewsletterRouter = require("./Route/NewsletterRouter")
+const ContactRouter = require("./Route/ContactRouter")
 
 
 const app = express()
@@ -24,6 +25,7 @@ app.use("/api", cartRouter)
 app.use("/api", checkoutrouter)
 app.use("/api", userRouter)
 app.use("/api", NewsletterRouter)
+app.use("/api", ContactRouter)
 
 app.listen(process.env.PORT, () => {
     console.log(`Server is running at ${process.env.PORT} port`)
