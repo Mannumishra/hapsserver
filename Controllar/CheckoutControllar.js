@@ -19,7 +19,7 @@ const placeOrder = async (req, res) => {
         if (paymentmode === "COD") {
             const newCheckout = new Checkout({ userid, total, paymentmode, products });
             await newCheckout.save();
-            return res.status(201).json({
+            return res.status(200).json({
                 success: true,
                 message: "Order placed successfully",
                 data: newCheckout
@@ -43,7 +43,7 @@ const placeOrder = async (req, res) => {
                 paymentstatus: razorpayOrder.status
             });
             await newCheckout.save();
-            return res.status(201).json({
+            return res.status(200).json({
                 success: true,
                 message: "Order placed successfully",
                 data: newCheckout,
