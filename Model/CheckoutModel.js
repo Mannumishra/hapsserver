@@ -9,6 +9,11 @@ const CheckoutSchema = new  mongoose.Schema({
         type: String,
         default:"Order is Placed"
     },
+    razorpayOrderId:{ type: String },
+    razorpayPaymentId: { type: String },
+    razorpaySignature: { type: String },
+    transactionId: { type: String },
+    PaymentDone: { type: Boolean, default: false },
     paymentstatus: {
         type: String,
         default:"Pending"
@@ -21,10 +26,7 @@ const CheckoutSchema = new  mongoose.Schema({
         type: Number,
         required:[true,"Total Must Required"]
     },
-    rppid: {
-        type: String,
-        default:""
-    },
+   
     products: [
        {
         productid: {
