@@ -10,15 +10,12 @@ var instance = new razorpay({
 const placeOrder = async (req, res) => {
     try {
         const { userid, total, products, paymentmode } = req.body;
-        console.log(req.body)
-        // Validate request body
         if (!userid || !total || !products || !paymentmode) {
             return res.status(400).json({
                 success: false,
                 message: "All fields are required",
             });
         }
-
         if (paymentmode === "COD") {
             const newCheckout = new Checkout({ userid, total, paymentmode, products });
             await newCheckout.save();
@@ -29,27 +26,23 @@ const placeOrder = async (req, res) => {
             });
         } else {
             const options = {
-                amount: Math.round(total * 100), // amount in the smallest currency unit
+                amount: Math.round(total * 100),
                 currency: "INR",
                 receipt: `OrderForProduct_${Date.now()}`,
             };
-
             const razorpayOrder = await instance.orders.create(options);
             if (!razorpayOrder) {
                 return res.status(500).send('Some error occurred while creating the Razorpay order.');
             }
-
             const newCheckout = new Checkout({
                 razorpayOrderId: razorpayOrder.id,
                 userid,
-
                 total,
                 paymentmode,
                 products,
                 paymentstatus: razorpayOrder.status
             });
             await newCheckout.save();
-
             return res.status(201).json({
                 success: true,
                 message: "Order placed successfully",
@@ -67,19 +60,15 @@ const placeOrder = async (req, res) => {
     }
 };
 
-
 const paymentVerification = async (req, res) => {
     try {
-        console.log(req.body)
         const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
-
         if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
             return res.status(400).json({
                 success: false,
                 message: 'Missing required payment details',
             });
         }
-
         const order = await Checkout.findOne({ razorpayOrderId: razorpay_order_id });
         if (!order) {
             return res.status(403).json({
@@ -87,13 +76,11 @@ const paymentVerification = async (req, res) => {
                 message: "Order not found"
             });
         }
-
         const body = razorpay_order_id + "|" + razorpay_payment_id;
         const expectedSignature = crypto
             .createHmac("sha256", process.env.RAZORPAY_API_SECRET || "Q79P6w7erUar31TwW4GLAkpa")
             .update(body)
             .digest("hex");
-
         if (expectedSignature === razorpay_signature) {
             const updatedOrder = await Checkout.findOneAndUpdate(
                 { razorpayOrderId: razorpay_order_id },
@@ -113,7 +100,6 @@ const paymentVerification = async (req, res) => {
                     message: "Failed to update order status"
                 });
             }
-
             res.redirect(`${process.env.FRONTEND_URL}/Payment-Success?Payment=Done&Order=${updatedOrder._id}`);
         } else {
             res.redirect(`${process.env.FRONTEND_URL}/Payment-failed?Payment=Failed`);
@@ -127,10 +113,6 @@ const paymentVerification = async (req, res) => {
         });
     }
 };
-
-
-
-
 
 const getUserRecord = async (req, res) => {
     try {

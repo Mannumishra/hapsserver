@@ -5,7 +5,6 @@ const checkoutrouter = require("express").Router()
 
 checkoutrouter.post("/checkout", placeOrder)
 checkoutrouter.post("/Payment-Verification", paymentVerification)
-
 checkoutrouter.get("/checkout/:userid", getUserRecord)
 checkoutrouter.get("/checkout", getRecord)
 checkoutrouter.get("/checkout/admin/:_id", getSingleOrder)
